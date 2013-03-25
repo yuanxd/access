@@ -11,34 +11,55 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.web.method.HandlerMethod;
 
-import com.xwinter.study.annotation.Access;
+import com.xwinter.study.annotation.AccessFunc;
+import com.xwinter.study.annotation.AccessPage;
 
+/**
+ * 注解解析与缓存
+ * 
+ * @author 袁晓冬
+ * 
+ */
 public class AnnotationProcess {
 	private final ClassPathScanningCandidateComponentProvider scanner;
 	/** 菜单缓存 */
-	private static final Map<Class<?>, Menu> menuMap = new HashMap<Class<?>, Menu>();
+	private static final Map<Class<?>, Page> menuMap = new HashMap<Class<?>, Page>();
 
 	/**
 	 * 获取菜单
 	 * 
 	 * @return
 	 */
-	public static Map<Class<?>, Menu> getMenumap() {
+	public static Map<Class<?>, Page> getMenumap() {
 		return menuMap;
 	}
-	
+
+	/**
+	 * 获取当前访问权限对象
+	 * 
+	 * @param hm
+	 * @return
+	 */
 	public static Function getFunction(HandlerMethod hm) {
-		Menu m = menuMap.get(hm.getBean().getClass());
-		return null;
+		Page page = menuMap.get(hm.getBean().getClass());
+		if (null == page) {
+			return null;
+		}
+		return page.getFuns().get(hm.getMethod().toGenericString());
 	}
 
 	public AnnotationProcess() {
 		this.scanner = new ClassPathScanningCandidateComponentProvider(false);
-		this.scanner.addIncludeFilter(new AnnotationTypeFilter(Access.class));
-		// this.scanner
-		// .addIncludeFilter(new AnnotationTypeFilter(Controller.class));
+		this.scanner
+				.addIncludeFilter(new AnnotationTypeFilter(AccessPage.class));
 	}
 
+	/**
+	 * 扫描包中权限相关注解并生成权限对象缓存
+	 * 
+	 * @param basePackages
+	 * @return
+	 */
 	public int scan(String... basePackages) {
 		Assert.notEmpty(basePackages,
 				"At least one base package must be specified");
@@ -49,21 +70,41 @@ public class AnnotationProcess {
 			for (BeanDefinition bdf : candidates) {
 				try {
 					Class<?> clazz = Class.forName(bdf.getBeanClassName());
-					Access access = (Access) clazz.getAnnotation(Access.class);
-					Menu m = new Menu();
-					m.setCode(access.code());
-					m.setName(access.name());
+					AccessPage access = (AccessPage) clazz
+							.getAnnotation(AccessPage.class);
+					Page menu = new Page();
+					String code = access.code();
+					String name = access.name();
+					if (null == code || code.length() == 0) {
+						code = clazz.getSimpleName();
+						code = Character.toLowerCase(clazz.getSimpleName()
+								.charAt(0))
+								+ clazz.getSimpleName().substring(1);
+					}
+					if (null == name || name.length() == 0) {
+						name = code;
+					}
+					menu.setCode(code);
+					menu.setName(name);
 					for (Method method : clazz.getDeclaredMethods()) {
-						Access mAccess = (Access) method
-								.getAnnotation(Access.class);
+						AccessFunc mAccess = (AccessFunc) method
+								.getAnnotation(AccessFunc.class);
 						if (mAccess != null) {
 							Function function = new Function();
-							function.setCode(mAccess.code());
-							function.setName(mAccess.name());
-							function.setMenu(m);
+							String fCode = mAccess.code();
+							if (null == fCode || fCode.length() == 0) {
+								fCode = method.getName();
+							}
+							String fName = mAccess.name();
+							if (null == fName || fName.length() == 0) {
+								fName = fCode;
+							}
+							function.setCode(fCode);
+							function.setName(fName);
+							menu.addFuns(method.toGenericString(), function);
 						}
 					}
-					menuMap.put(clazz, m);
+					menuMap.put(clazz, menu);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

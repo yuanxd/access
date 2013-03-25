@@ -3,15 +3,20 @@ package com.xwinter.study.access;
 public class Function {
 	private String name;
 	private String code;
-	private Menu menu;
+	private Page page;
 
-	public Menu getMenu() {
-		return menu;
+	public Page getPage() {
+		return page;
 	}
 
-	public void setMenu(Menu menu) {
-		this.menu = menu;
-		this.menu.addFuns(this);
+	@Override
+	public String toString() {
+		return "Function [name=" + name + ", code=" + code + ", page=" + page
+				+ "]";
+	}
+
+	public void setPage(Page page) {
+		this.page = page;
 	}
 
 	public String getName() {
