@@ -1,5 +1,12 @@
 package com.xwinter.study.access;
 
+/**
+ * 菜单下功能对象<br>
+ * 对此对象进行授权
+ * 
+ * @author 袁晓冬
+ * 
+ */
 public class Function {
 	private String name;
 	private String code;

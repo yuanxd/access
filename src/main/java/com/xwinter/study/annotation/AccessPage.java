@@ -11,5 +11,4 @@ public @interface AccessPage {
 	public String code() default "";
 
 	public String name() default "";
-
 }

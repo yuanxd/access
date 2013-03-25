@@ -34,10 +34,14 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 			return true;
 		} else {
 			// 从session中获取用户信息
-			System.err.println(function.toString());
 			if (null != permissionCheck) {
-				return permissionCheck.checkPermission(function, request
-						.getSession().getAttribute(sessionKey));
+				String toPage = permissionCheck.checkPermission(function,
+						request.getSession().getAttribute(sessionKey));
+				if (null == toPage || toPage.length() == 0) {
+					return true;
+				}
+				response.sendRedirect(request.getSession().getServletContext().getContextPath()+toPage);
+				return false;
 			}
 		}
 		return true;

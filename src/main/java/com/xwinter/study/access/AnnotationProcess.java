@@ -1,8 +1,6 @@
 package com.xwinter.study.access;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -21,18 +19,8 @@ import com.xwinter.study.annotation.AccessPage;
  * 
  */
 public class AnnotationProcess {
+	/** 类扫描 */
 	private final ClassPathScanningCandidateComponentProvider scanner;
-	/** 菜单缓存 */
-	private static final Map<Class<?>, Page> menuMap = new HashMap<Class<?>, Page>();
-
-	/**
-	 * 获取菜单
-	 * 
-	 * @return
-	 */
-	public static Map<Class<?>, Page> getMenumap() {
-		return menuMap;
-	}
 
 	/**
 	 * 获取当前访问权限对象
@@ -41,7 +29,8 @@ public class AnnotationProcess {
 	 * @return
 	 */
 	public static Function getFunction(HandlerMethod hm) {
-		Page page = menuMap.get(hm.getBean().getClass());
+		Page page = PermissionManager.getInstance().getPage(
+				hm.getBean().getClass().getName());
 		if (null == page) {
 			return null;
 		}
@@ -104,13 +93,24 @@ public class AnnotationProcess {
 							menu.addFuns(method.toGenericString(), function);
 						}
 					}
-					menuMap.put(clazz, menu);
+					boolean addres = PermissionManager.getInstance().addPage(
+							clazz.getName(), menu);
+					if (addres) {
+						throw new RuntimeException("duplicate page:" + menu);
+					}
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 			}
 			System.err.println(candidates.size());
 		}
+		buildCache();
 		return count;
+	}
+
+	/**
+	 * 整理缓存
+	 */
+	private void buildCache() {
 	}
 }

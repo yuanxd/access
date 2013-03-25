@@ -12,7 +12,7 @@ public interface AccessPermissionCheck {
 	 * 
 	 * @param func
 	 * @param sessionKey
-	 * @return
+	 * @return String 跳转页面
 	 */
-	boolean checkPermission(Function func, Object sessionKey);
+	String checkPermission(Function func, Object sessionKey);
 }
