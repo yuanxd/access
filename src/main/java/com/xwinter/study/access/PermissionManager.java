@@ -39,7 +39,7 @@ public class PermissionManager {
 	public Page getPage(String key) {
 		return menuMap.get(key);
 	}
-	
+
 	/**
 	 * 根据主键获取权限
 	 * 
@@ -49,9 +49,17 @@ public class PermissionManager {
 	public Page getByCode(String code) {
 		return codeMap.get(code);
 	}
-	
+
+	/**
+	 * 设置是否可用
+	 * 
+	 * @param code
+	 */
 	public void usePage(String code) {
-		codeMap.get(code).setUsed(true);
+		Page page = codeMap.get(code);
+		if (null != page && !page.isUsed()) {
+			page.setUsed(true);
+		}
 	}
 
 	/**

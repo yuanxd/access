@@ -11,22 +11,16 @@ import java.util.Map;
  * 
  */
 public class Page {
-	private Page parentPage;
-
+	/** 记录ID，只有注册的菜单才会有 */
+	private String id;
+	/** 上级ID，只有注册的菜单才会有 */
+	private String pid;
+	/** 菜单名称 */
 	private String name;
-
+	/** 菜单编码 */
 	private String code;
-
-	/** 标记记录未使用 */
+	/** 标记记录未使用，注册的菜单为true */
 	private boolean used = false;
-
-	public boolean isUsed() {
-		return used;
-	}
-
-	public void setUsed(boolean used) {
-		this.used = used;
-	}
 
 	private Map<String, Function> funs = new HashMap<String, Function>();
 
@@ -43,24 +37,40 @@ public class Page {
 		return funs;
 	}
 
+	public String getId() {
+		return id;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	public Page getParentPage() {
-		return parentPage;
+	public String getPid() {
+		return pid;
+	}
+
+	public boolean isUsed() {
+		return used;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setParentPage(Page parentPage) {
-		this.parentPage = parentPage;
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
+	public void setUsed(boolean used) {
+		this.used = used;
 	}
 
 	@Override
