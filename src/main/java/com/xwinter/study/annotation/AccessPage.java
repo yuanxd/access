@@ -11,4 +11,17 @@ public @interface AccessPage {
 	public String code() default "";
 
 	public String name() default "";
+
+	/**
+	 * 访问url地址
+	 * @return
+	 */
+	public String url() default "";
+
+	/***
+	 * 画面入口方法
+	 * 
+	 * @return
+	 */
+	public String mainPage() default "mainPage";
 }

@@ -64,6 +64,7 @@ public class AnnotationProcess {
 					Page menu = new Page();
 					String code = access.code();
 					String name = access.name();
+					String url = access.url();
 					if (null == code || code.length() == 0) {
 						code = clazz.getSimpleName();
 						code = Character.toLowerCase(clazz.getSimpleName()
@@ -75,6 +76,7 @@ public class AnnotationProcess {
 					}
 					menu.setCode(code);
 					menu.setName(name);
+					menu.setUrl(url);
 					for (Method method : clazz.getDeclaredMethods()) {
 						AccessFunc mAccess = (AccessFunc) method
 								.getAnnotation(AccessFunc.class);

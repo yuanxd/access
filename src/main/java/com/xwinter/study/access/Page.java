@@ -19,6 +19,11 @@ public class Page {
 	private String name;
 	/** 菜单编码 */
 	private String code;
+	/** 功能链接 */
+	private String url;
+	/** 菜单状态 */
+	private int status;
+
 	/** 标记记录未使用，注册的菜单为true */
 	private boolean used = false;
 
@@ -26,7 +31,6 @@ public class Page {
 
 	public void addFuns(String key, Function value) {
 		this.funs.put(key, value);
-		value.setPage(this);
 	}
 
 	public String getCode() {
@@ -49,6 +53,14 @@ public class Page {
 		return pid;
 	}
 
+	public int getStatus() {
+		return status;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
 	public boolean isUsed() {
 		return used;
 	}
@@ -67,6 +79,14 @@ public class Page {
 
 	public void setPid(String pid) {
 		this.pid = pid;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public void setUsed(boolean used) {

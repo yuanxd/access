@@ -10,20 +10,10 @@ package com.xwinter.study.access;
 public class Function {
 	private String name;
 	private String code;
-	private Page page;
-
-	public Page getPage() {
-		return page;
-	}
 
 	@Override
 	public String toString() {
-		return "Function [name=" + name + ", code=" + code + ", page=" + page
-				+ "]";
-	}
-
-	public void setPage(Page page) {
-		this.page = page;
+		return "Function [name=" + name + ", code=" + code + "]";
 	}
 
 	public String getName() {
