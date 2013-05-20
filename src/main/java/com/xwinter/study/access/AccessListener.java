@@ -4,7 +4,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
- * 权限扫描入口
+ * 权限扫描入口,用于初始化权限控制
  * 
  * @author 袁晓冬
  * 

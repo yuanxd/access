@@ -1,4 +1,4 @@
-package com.xwinter.study.access;
+package com.xwinter.study.access.entity;
 
 /**
  * 菜单下功能对象<br>
@@ -7,7 +7,7 @@ package com.xwinter.study.access;
  * @author 袁晓冬
  * 
  */
-public class Function {
+public class FunctionEntity {
 	private String name;
 	private String code;
 

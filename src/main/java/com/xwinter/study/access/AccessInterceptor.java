@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import com.xwinter.study.access.entity.FunctionEntity;
+
 /**
  * 权限拦截器
  * 
@@ -14,7 +16,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
  */
 public class AccessInterceptor extends HandlerInterceptorAdapter {
 	/** 权限检查 */
-	private AccessPermissionCheck permissionCheck;
+	private IAccessPermissionCheck permissionCheck;
 
 	/** session中存储用户身份的key */
 	private String sessionKey = "";
@@ -29,7 +31,7 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 		if (!(handler instanceof HandlerMethod))
 			return true;
 		HandlerMethod hm = (HandlerMethod) handler;
-		Function function = AnnotationProcess.getFunction(hm);
+		FunctionEntity function = AnnotationProcess.getFunction(hm);
 		if (null == function) {
 			return true;
 		} else {
@@ -52,7 +54,7 @@ public class AccessInterceptor extends HandlerInterceptorAdapter {
 	 * 
 	 * @param permissionCheck
 	 */
-	public void setPermissionCheck(AccessPermissionCheck permissionCheck) {
+	public void setPermissionCheck(IAccessPermissionCheck permissionCheck) {
 		this.permissionCheck = permissionCheck;
 	}
 

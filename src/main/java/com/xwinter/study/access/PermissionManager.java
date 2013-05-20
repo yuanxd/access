@@ -3,20 +3,27 @@ package com.xwinter.study.access;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.xwinter.study.access.entity.PageEntity;
+
 /**
- * 权限管理
+ * 权限管理，用于缓存权限扫描结果
  * 
  * @author 袁晓冬
  * 
  */
 public class PermissionManager {
 	/** 菜单缓存 */
-	private final Map<String, Page> menuMap = new HashMap<String, Page>();
+	private final Map<String, PageEntity> menuMap = new HashMap<String, PageEntity>();
 
-	private final Map<String, Page> codeMap = new HashMap<String, Page>();
+	private final Map<String, PageEntity> codeMap = new HashMap<String, PageEntity>();
 
 	private static PermissionManager instance = new PermissionManager();
 
+	/**
+	 * 获取单例对象
+	 * 
+	 * @return
+	 */
 	public static PermissionManager getInstance() {
 		return instance;
 	}
@@ -26,7 +33,7 @@ public class PermissionManager {
 	 * 
 	 * @return
 	 */
-	public Map<String, Page> getMenumap() {
+	public Map<String, PageEntity> getMenuMap() {
 		return menuMap;
 	}
 
@@ -36,7 +43,7 @@ public class PermissionManager {
 	 * @param key
 	 * @return
 	 */
-	public Page getPage(String key) {
+	public PageEntity getPage(String key) {
 		return menuMap.get(key);
 	}
 
@@ -46,20 +53,8 @@ public class PermissionManager {
 	 * @param key
 	 * @return
 	 */
-	public Page getByCode(String code) {
+	public PageEntity getPageByCode(String code) {
 		return codeMap.get(code);
-	}
-
-	/**
-	 * 设置是否可用
-	 * 
-	 * @param code
-	 */
-	public void usePage(String code) {
-		Page page = codeMap.get(code);
-		if (null != page && !page.isUsed()) {
-			page.setUsed(true);
-		}
 	}
 
 	/**
@@ -69,16 +64,15 @@ public class PermissionManager {
 	 * @param page
 	 * @return
 	 */
-	public boolean addPage(String key, Page page) {
-		boolean has = false;
+	public boolean addPage(String key, PageEntity page) {
 		if (menuMap.containsKey(key)) {
-			has = true;
+			return true;
 		}
 		if (codeMap.containsKey(page.getCode())) {
-			has = true;
+			return true;
 		}
 		menuMap.put(key, page);
 		codeMap.put(page.getCode(), page);
-		return has;
+		return false;
 	}
 }

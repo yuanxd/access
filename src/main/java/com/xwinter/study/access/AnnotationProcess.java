@@ -9,8 +9,10 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.web.method.HandlerMethod;
 
-import com.xwinter.study.annotation.AccessFunc;
-import com.xwinter.study.annotation.AccessPage;
+import com.xwinter.study.access.entity.FunctionEntity;
+import com.xwinter.study.access.entity.PageEntity;
+import com.xwinter.study.annotation.Function;
+import com.xwinter.study.annotation.Page;
 
 /**
  * 注解解析与缓存
@@ -28,8 +30,8 @@ public class AnnotationProcess {
 	 * @param hm
 	 * @return
 	 */
-	public static Function getFunction(HandlerMethod hm) {
-		Page page = PermissionManager.getInstance().getPage(
+	public static FunctionEntity getFunction(HandlerMethod hm) {
+		PageEntity page = PermissionManager.getInstance().getPage(
 				hm.getBean().getClass().getName());
 		if (null == page) {
 			return null;
@@ -39,8 +41,74 @@ public class AnnotationProcess {
 
 	public AnnotationProcess() {
 		this.scanner = new ClassPathScanningCandidateComponentProvider(false);
-		this.scanner
-				.addIncludeFilter(new AnnotationTypeFilter(AccessPage.class));
+		this.scanner.addIncludeFilter(new AnnotationTypeFilter(Page.class));
+	}
+
+	/**
+	 * 处理一个被Page注解的类
+	 * 
+	 * @param clazz
+	 * @page 注解的class类
+	 */
+	private void dealClass(Class<?> clazz) {
+		Page access = (Page) clazz.getAnnotation(Page.class);
+		if (null == access) {
+			return;
+		}
+		// 读取注解信息
+		String code = access.code();
+		String name = access.name();
+		String url = access.url();
+		String[] entries = access.entries();
+		// 设置code默认值为class名首字母小写
+		if (null == code || code.length() == 0) {
+			code = clazz.getSimpleName();
+			code = Character.toLowerCase(clazz.getSimpleName().charAt(0))
+					+ clazz.getSimpleName().substring(1);
+		}
+		// 设置name属性为空时设置name等于code
+		if (null == name || name.length() == 0) {
+			name = code;
+		}
+		PageEntity page = new PageEntity();
+		page.setCode(code);
+		page.setName(name);
+		page.setUrl(url);
+		page.setEntries(entries);
+		// 处理注解方法
+		for (Method method : clazz.getDeclaredMethods()) {
+			FunctionEntity functionEntity = null;
+			Function function = (Function) method.getAnnotation(Function.class);
+			if (null == function) {
+				if (entries != null) {
+					for (String entry : entries) {
+						if (method.toGenericString().equals(entry)) {
+							functionEntity = new FunctionEntity();
+							functionEntity.setCode(page.getCode());
+							break;
+						}
+					}
+				} else {
+					continue;
+				}
+			} else {
+				functionEntity = new FunctionEntity();
+				String funCode = function.code();
+				// 方法编码未设置时，设置为方法名
+				if (null == funCode || funCode.length() == 0) {
+					funCode = method.getName();
+				}
+				functionEntity.setCode(funCode);
+			}
+			if (null != functionEntity) {
+				page.addFuns(method.toGenericString(), functionEntity);
+			}
+
+		}
+
+		if (PermissionManager.getInstance().addPage(clazz.getName(), page)) {
+			throw new RuntimeException("duplicate page:" + page);
+		}
 	}
 
 	/**
@@ -59,47 +127,7 @@ public class AnnotationProcess {
 			for (BeanDefinition bdf : candidates) {
 				try {
 					Class<?> clazz = Class.forName(bdf.getBeanClassName());
-					AccessPage access = (AccessPage) clazz
-							.getAnnotation(AccessPage.class);
-					Page menu = new Page();
-					String code = access.code();
-					String name = access.name();
-					String url = access.url();
-					if (null == code || code.length() == 0) {
-						code = clazz.getSimpleName();
-						code = Character.toLowerCase(clazz.getSimpleName()
-								.charAt(0))
-								+ clazz.getSimpleName().substring(1);
-					}
-					if (null == name || name.length() == 0) {
-						name = code;
-					}
-					menu.setCode(code);
-					menu.setName(name);
-					menu.setUrl(url);
-					for (Method method : clazz.getDeclaredMethods()) {
-						AccessFunc mAccess = (AccessFunc) method
-								.getAnnotation(AccessFunc.class);
-						if (mAccess != null) {
-							Function function = new Function();
-							String fCode = mAccess.code();
-							if (null == fCode || fCode.length() == 0) {
-								fCode = method.getName();
-							}
-							String fName = mAccess.name();
-							if (null == fName || fName.length() == 0) {
-								fName = fCode;
-							}
-							function.setCode(fCode);
-							function.setName(fName);
-							menu.addFuns(method.toGenericString(), function);
-						}
-					}
-					boolean addres = PermissionManager.getInstance().addPage(
-							clazz.getName(), menu);
-					if (addres) {
-						throw new RuntimeException("duplicate page:" + menu);
-					}
+					dealClass(clazz);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
